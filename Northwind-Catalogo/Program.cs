@@ -30,6 +30,10 @@ namespace Northwind.Catalogo
                     using MySqlCommand comando = new(consulta, conexion);
                     long cantidad = Convert.ToInt64(comando.ExecuteScalar());
                     Console.WriteLine("Cantidad de productos: " + cantidad);
+
+                    // Taller 3
+                    Northwind.Catalogo.BusquedaProductos.BuscarPorPrecioYStock(conexion);
+                    Northwind.Catalogo.BusquedaProductos.BuscarPorNombre(conexion);
                 }
 
                 // Los ejemplos de cada aspecto se desarrollan en el otro archivo.

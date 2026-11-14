@@ -78,7 +78,7 @@ namespace Northwind.Catalogo
                 Console.WriteLine("Después de Open: " + conexion.State);
 
                 string consulta =
-                    "SELECT ProductName FROM Products ORDER BY ProductID LIMIT 2;";
+                    "SELECT ProductName FROM Products ORDER BY ProductID LIMIT 5;";
 
                 {
                     using MySqlCommand comando = new(consulta, conexion);
@@ -91,6 +91,11 @@ namespace Northwind.Catalogo
                     } // Dispose del lector: deja de ocupar la conexión con resultados.
 
                     Console.WriteLine("Lector liberado; conexión: " + conexion.State);
+
+
+                    comando.CommandText = "SELECT COUNT(*) FROM Products;";
+                    object? total = comando.ExecuteScalar();
+                    Console.WriteLine("Segunda consulta: " + total);
                 } // Dispose del comando. La conexión continúa abierta.
             } // Dispose de la conexión: devuelve la conexión física al pool si está habilitado.
 
@@ -346,6 +351,7 @@ namespace Northwind.Catalogo
                         comando.Parameters.Add("@id", MySqlDbType.Int32).Value = 1;
                         comando.ExecuteNonQuery();
                         Console.WriteLine("Primera inserción correcta: ID 1.");
+                      
                         comando.ExecuteNonQuery(); // El segundo ID 1 viola la clave primaria.
                     }
                 }
