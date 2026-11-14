@@ -246,4 +246,22 @@ En los dos casos salen los mismos 32 productos y el conteo es 32. Cambió solo s
 
 ## 4. Explicación
 
+### Asignación de parámetros
+
+En la consulta no pego el valor que escribe el usuario; dejo un marcador como `@precioMax` y le asigno el valor aparte con `Parameters.AddWithValue("@precioMax", precioMax)`. Así MySQL siempre trata lo que llega como un dato y no como parte de la instrucción SQL, y se evita la inyección SQL. En la búsqueda por nombre armo el patrón `"%" + fragmento + "%"` y ese texto completo es el valor del parámetro `@patron`, que se usa con `LIKE`; el fragmento nunca se concatena dentro del SQL.
+
+### Recursos que libera cada using
+
+- **El lector (`MySqlDataReader`):** deja de leer las filas del resultado. Mientras está abierto, la conexión está ocupada con él, por eso el `COUNT(*)` se ejecuta después de liberarlo.
+- **El comando (`MySqlCommand`):** libera la consulta que se ejecutó. Liberarlo no cierra la conexión.
+- **La conexión (`MySqlConnection`):** se cierra o se devuelve al pool cuando termina su bloque.
+
+Se liberan en orden inverso al que se abrieron: primero el lector, luego el comando y al final la conexión.
+
+### Cero coincidencias, columna NULL y excepción
+
+- **Cero coincidencias:** la consulta se ejecutó bien pero no devolvió filas. `Read()` da `false` desde el inicio y el programa muestra el mensaje de que no hay productos. Fue lo que pasó en los casos 2, 3 y 10.
+- **Columna NULL:** sí hay una fila, pero una de sus columnas (`QuantityPerUnit`) no tiene valor. Se revisa con `IsDBNull` antes de leerla y se muestra «Presentación sin registrar». Fue el caso 8.
+- **Excepción:** algo falló de verdad: la tabla no existe, la conexión no se pudo abrir o se repitió una clave. Se lanza una `MySqlException` y se atrapa con `catch`. Se vio en el tutorial con los códigos 1146, 1042 y 1062.
+
 
